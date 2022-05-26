@@ -18,9 +18,11 @@ class MakePayment extends React.Component {
     newPayment = (e) => {
         const value = Number(e.target.value);
         this.setState({ payment : value}) 
-        value >= this.state.minimumPayment
-        ? this.setState({isMinPayment: true})
-        : this.setState({isMinPayment: false})
+    //     if (value <= this.state.minimumPayment){
+    //         this.setState({isMinPayment: false})
+    //     } else {
+    //         this.setState({isMinPayment: true})
+    //     }
     }
 
     submitPayment = (e) => {
@@ -53,6 +55,7 @@ class MakePayment extends React.Component {
         } else {
             this.setState({
                 payment: '',
+                isMinPayment: false,
             })
         }
     }
@@ -78,7 +81,7 @@ class MakePayment extends React.Component {
                     value={payment}
                 />
                 <br />
-                {!isMinPayment ? <div className="error">Payment must equal minimum payment</div> : '' }
+                {!isMinPayment && <div className="error">Payment must equal minimum payment</div> }
                 <input type="submit" />
                </form>
                     <DisplayPaymentHistory payments={payments} principal={principal} />
