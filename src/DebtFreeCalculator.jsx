@@ -15,26 +15,6 @@ class DebtFreeCalculator extends React.Component {
          }
     }
 
-    handleSubmit = (e) => {
-        e.preventDefault();
-
-        const interestDecimal = Number(this.state.interest)/100;
-        const interestDue = ((interestDecimal/12) * this.state.principal).toFixed(2);
-
-        this.setState({
-            interestRate : interestDecimal,
-            interestAmount : Number(interestDue),
-            principalAmount : (this.state.principal) * .01,
-            principal : Number(this.state.principal)
-            
-        }, () => {
-            const payment = (this.state.interestAmount + this.state.principalAmount);
-            this.setState({
-                minimumPayment : Number(payment.toFixed(2)),
-            })
-        });
-    }
-
     handleChange = (e) => {
         const value = e.target.value;
         const name  = e.target.name;
@@ -43,10 +23,34 @@ class DebtFreeCalculator extends React.Component {
 
 
     handleDataFromChild = (newPrincipal, updatedMinPayment) => {
+        if(newPrincipal >= 0) {
+            this.setState({
+                principal: newPrincipal.toFixed(2),
+                minimumPayment: updatedMinPayment,
+            })
+        }
+    }
+
+    handlePaymentChange = () => {
+        const {interestAmount, principalAmount} = this.state;
+        const payment = (interestAmount + principalAmount);
+        console.log();
+        this.setState({ minimumPayment: (Number(payment.toFixed(2)))});
+    }
+
+    handleSubmit = (e) => {
+        e.preventDefault();
+
+        const interestDecimal = Number(this.state.interest)/100;
+        const interestDue = ((interestDecimal/12) * this.state.principal).toFixed(2);
+
         this.setState({
-            principal: newPrincipal.toFixed(2),
-            minimumPayment: updatedMinPayment,
-        })
+            interestRate: interestDecimal,
+            interestAmount: Number(interestDue),
+            principalAmount: (this.state.principal) * .01,
+            principal: Number(this.state.principal),
+            // minimumPayment: (this.state.interestAmount + this.state.principalAmount),
+        }, this.handlePaymentChange);
     }
 
     render(){
@@ -75,7 +79,7 @@ class DebtFreeCalculator extends React.Component {
                         <br />
                         <input type="submit" />
                     </form>
-                    <PaymentsRemaining principal={principal} minimumPayment={minimumPayment} />
+                    <PaymentsRemaining principal={principal} minPayment={minimumPayment} />
                 </div>
                     <MakePayment data={this.state} sendPrincipalToParent={this.handleDataFromChild} />
             </div>

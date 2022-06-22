@@ -17,41 +17,51 @@ class MakePayment extends React.Component {
 
     newPayment = (e) => {
         const value = Number(e.target.value);
-        this.setState({ payment : value}) 
-    //     if (value <= this.state.minimumPayment){
-    //         this.setState({isMinPayment: false})
-    //     } else {
-    //         this.setState({isMinPayment: true})
-    //     }
+        this.setState({ payment: value}) 
+    }
+
+    createNewPayment = () => {
+        const { payment } = this.state;
+        const {interestRate, principal} = this.props.data;
+        const interest = (principal * (interestRate / 12)).toFixed(2);
+        const principalPaid = (payment - interest);
+        const updatedPrincipal = (principal - principalPaid);
+        return  {
+            id: Date.now(),
+            interestPaid: interest,
+            principalPaid: principalPaid.toFixed(2),
+            amount: payment,
+            updatedPrincipal: updatedPrincipal.toFixed(2),
+        }
+    }
+
+    updateNewPaymentState = () => {
+        const { payment } = this.state;
+        const {interestRate, principal} = this.props.data;
+        const { sendPrincipalToParent } = this.props;
+        const interest = (principal * (interestRate / 12)).toFixed(2);
+        const principalPaid = (payment - interest);
+        const updatedPrincipal = (principal - principalPaid);
+        const principalToBePaid = (updatedPrincipal * .01).toFixed(2);
+        const updatedMinPayment = (Number(principalToBePaid) + Number(interest)).toFixed(2);
+        this.setState((prevState) => ({
+            payments: [...prevState.payments, this.createNewPayment()],
+            payment: '',
+            interestToBePaid: interest,
+            principalToBePaid: principalToBePaid,
+            updatedMinPayment: updatedMinPayment,
+            isMinPayment: true,
+        }))
+        sendPrincipalToParent(updatedPrincipal, updatedMinPayment)
     }
 
     submitPayment = (e) => {
         e.preventDefault();
 
         const { payment } = this.state;
-        const {interestRate, minimumPayment, principal} = this.props.data;
+        const { minimumPayment } = this.props.data;
         if(payment >= minimumPayment){
-            const interest = (principal * (interestRate / 12)).toFixed(2);
-            const principalPaid = (payment - interest);
-            const updatedPrincipal = (principal - principalPaid);
-            const principalToBePaid = (updatedPrincipal * .01).toFixed(2);
-            const updatedMinPayment = (Number(principalToBePaid) + Number(interest)).toFixed(2);
-            const newPayment = {
-                id: Date.now(),
-                interestPaid: interest,
-                principalPaid: principalPaid.toFixed(2),
-                amount: payment,
-                updatedPrincipal: updatedPrincipal.toFixed(2),
-            }
-                this.setState((prevState) => ({
-                    payments: [...prevState.payments, newPayment],
-                    payment: '',
-                    interestToBePaid: interest,
-                    principalToBePaid: principalToBePaid,
-                    updatedMinPayment: updatedMinPayment,
-                    isMinPayment: true,
-                }))
-                this.props.sendPrincipalToParent(updatedPrincipal, updatedMinPayment);
+            this.updateNewPaymentState();
         } else {
             this.setState({
                 payment: '',
@@ -61,7 +71,6 @@ class MakePayment extends React.Component {
     }
 
     render(){
-        console.log(this.state.isMinPayment);
         const { principal, minimumPayment, interestAmount, principalAmount} = this.props.data;
         const { payment, payments, interestToBePaid, principalToBePaid, updatedMinPayment, isMinPayment } = this.state;
         return(
