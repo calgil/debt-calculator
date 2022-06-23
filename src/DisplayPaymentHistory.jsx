@@ -2,9 +2,9 @@ import React from "react";
 
 const DisplayPaymentHistory = ({ payments }) => {
     return (
-        <div className="card">
+        <div className="card payment-history">
             <h2>Payment History</h2>
-             <ul>
+             <ul className="payment-history">
                  <li>
                      <span>Payment Amount</span>
                      <span>Interest</span>
